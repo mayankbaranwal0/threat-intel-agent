@@ -1,0 +1,9 @@
+{
+  "confluence": "cpe:2.3:a:atlassian:confluence_server",
+  "confluence data center": "cpe:2.3:a:atlassian:confluence_data_center",
+  "log4j": "cpe:2.3:a:apache:log4j",
+  "exchange": "cpe:2.3:a:microsoft:exchange_server",
+  "openssh": "cpe:2.3:a:openbsd:openssh",
+  "apache": "cpe:2.3:a:apache:http_server",
+  "jira": "cpe:2.3:a:atlassian:jira"
+}

@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     cache_dir: Path = REPO_ROOT / "data" / "cache"
     fixture_dir: Path = REPO_ROOT / "data" / "fixtures"
     attck_index: Path = REPO_ROOT / "data" / "attck_index.json"
+    cpe_aliases: Path = REPO_ROOT / "data" / "cpe_aliases.json"
 
 
 def export_provider_keys(settings: Settings) -> None:
