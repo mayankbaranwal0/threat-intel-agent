@@ -1,0 +1,11 @@
+{
+  "data": {
+    "last_analysis_stats": {"malicious": 41, "suspicious": 2, "harmless": 0, "undetected": 29},
+    "meaningful_name": "browser_update_setup.exe",
+    "type_description": "Win32 EXE",
+    "size": 1834496,
+    "tags": ["peexe", "trojan", "loader"],
+    "popular_threat_classification": {"suggested_threat_label": "trojan.fakeupdater/loader"},
+    "first_submission_date": 1754000000
+  }
+}

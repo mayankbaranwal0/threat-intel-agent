@@ -1,0 +1,13 @@
+{
+  "data": {
+    "abuseConfidenceScore": 100,
+    "totalReports": 61,
+    "numDistinctUsers": 37,
+    "countryCode": "NL",
+    "usageType": "Data Center/Web Hosting/Transit",
+    "isp": "The Constant Company LLC",
+    "domain": "constant.com",
+    "lastReportedAt": "2026-08-15T22:41:03+00:00",
+    "categories": ["SSH brute-force", "Port scan"]
+  }
+}

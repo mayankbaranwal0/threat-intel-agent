@@ -1,0 +1,12 @@
+{
+  "data": {
+    "resolutions": [
+      {"host_name": "evil-updates.com", "date": 1755100000},
+      {"host_name": "cdn-push-update.net", "date": 1754900000},
+      {"host_name": "get-fastfix.org", "date": 1754500000}
+    ],
+    "communicating_files": [
+      {"sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "detections": 41}
+    ]
+  }
+}

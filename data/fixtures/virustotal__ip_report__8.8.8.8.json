@@ -1,0 +1,12 @@
+{
+  "data": {
+    "last_analysis_stats": {"malicious": 0, "suspicious": 0, "harmless": 68, "undetected": 26},
+    "reputation": 512,
+    "asn": 15169,
+    "as_owner": "GOOGLE",
+    "country": "US",
+    "tags": [],
+    "network": "8.8.8.0/24",
+    "regional_internet_registry": "ARIN"
+  }
+}

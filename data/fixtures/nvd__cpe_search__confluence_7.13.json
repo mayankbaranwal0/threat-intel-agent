@@ -1,0 +1,24 @@
+{
+  "data": {
+    "product": "confluence",
+    "version": "7.13",
+    "cves": [
+      {
+        "id": "CVE-2022-26134",
+        "description": "OGNL injection vulnerability allowing unauthenticated remote code execution on Confluence Server and Data Center.",
+        "baseScore": 9.8,
+        "baseSeverity": "CRITICAL",
+        "versionStartIncluding": "7.13.0",
+        "versionEndExcluding": "7.13.7"
+      },
+      {
+        "id": "CVE-2022-26138",
+        "description": "Confluence Questions app creates a disabled-by-default user account with a hardcoded password, allowing remote unauthenticated access if enabled.",
+        "baseScore": 9.8,
+        "baseSeverity": "CRITICAL",
+        "versionStartIncluding": "7.13.0",
+        "versionEndExcluding": "7.13.9"
+      }
+    ]
+  }
+}

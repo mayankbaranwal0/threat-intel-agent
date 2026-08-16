@@ -1,0 +1,13 @@
+{
+  "data": {
+    "abuseConfidenceScore": 0,
+    "totalReports": 3,
+    "numDistinctUsers": 3,
+    "countryCode": "US",
+    "usageType": "Content Delivery Network",
+    "isp": "Google LLC",
+    "domain": "google.com",
+    "lastReportedAt": "2026-06-02T10:15:00+00:00",
+    "categories": []
+  }
+}

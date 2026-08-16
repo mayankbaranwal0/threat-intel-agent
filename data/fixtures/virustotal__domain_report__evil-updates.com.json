@@ -1,0 +1,11 @@
+{
+  "data": {
+    "last_analysis_stats": {"malicious": 12, "suspicious": 3, "harmless": 61, "undetected": 18},
+    "reputation": -18,
+    "tags": ["fakeupdate"],
+    "creation_date": 1753833600,
+    "registrar": "NameCheap Inc.",
+    "last_dns_records": [{"type": "A", "value": "45.83.122.10"}],
+    "categories": {"forcepoint": "newly registered websites"}
+  }
+}

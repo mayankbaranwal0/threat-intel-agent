@@ -1,0 +1,11 @@
+{
+  "data": {
+    "pulse_count": 4,
+    "pulses": [
+      {"name": "Sysrv botnet infrastructure - August wave", "description": "Tracking active Sysrv-hello botnet C2 and scanning nodes observed brute-forcing SSH and deploying XMRig payloads.", "tags": ["sysrv", "botnet", "ssh", "xmrig"]},
+      {"name": "SSH brute-force sources (community feed)", "description": "Aggregated list of IPs with sustained SSH brute-force activity against honeypots over the last 30 days.", "tags": ["ssh", "bruteforce", "honeypot"]},
+      {"name": "Cryptomining dropper hosts", "description": "Hosts serving shell scripts that install cryptominers after initial access via weak credentials.", "tags": ["cryptomining", "dropper"]},
+      {"name": "Vultr abuse cluster 2026-08", "description": "Short-lived VPS instances in AS20473 used for scanning and exploitation attempts.", "tags": ["vps", "scanning"]}
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "data": {
+    "last_analysis_stats": {"malicious": 34, "suspicious": 4, "harmless": 52, "undetected": 4},
+    "reputation": -42,
+    "asn": 20473,
+    "as_owner": "AS-CHOOPA",
+    "country": "NL",
+    "tags": ["ssh-bruteforce", "scanner"],
+    "last_analysis_date": 1755200000,
+    "total_votes": {"harmless": 1, "malicious": 19},
+    "network": "45.83.122.0/24",
+    "regional_internet_registry": "RIPE NCC"
+  }
+}
