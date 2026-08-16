@@ -1,5 +1,5 @@
 import threat_intel_agent.agent as agent_mod
-from threat_intel_agent.agent import AgentSession, Deps, _finish
+from threat_intel_agent.agent import AgentSession, Deps, _finish, _strip_artifacts
 from threat_intel_agent.schemas import Answer, RouterOutput, ToolEnvelope
 from threat_intel_agent.settings import REPO_ROOT, Settings
 
@@ -86,6 +86,16 @@ async def test_memory_updated_after_turn(tmp_path, monkeypatch):
     session = offline_session(tmp_path)
     await session.ask("Is 45.83.122.10 malicious?")
     assert "45.83.122.10" in {e.value for e in session.memory.recent()}
+
+
+def test_strip_artifacts():
+    assert (
+        _strip_artifacts("Recommend follow-up.</analyst_note>\n</invoke>")
+        == "Recommend follow-up."
+    )
+    assert _strip_artifacts("plain text stays") == "plain text stays"
+    assert _strip_artifacts(None) is None
+    assert _strip_artifacts("as of <timestamp> keep angle text") == "as of <timestamp> keep angle text"
 
 
 def test_finish_quarantines_and_collects_flags():

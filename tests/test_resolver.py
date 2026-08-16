@@ -125,6 +125,20 @@ async def test_arm_failure_is_one_shot(tmp_path):
     assert env2.layer == "live" and live.calls == 1
 
 
+async def test_arm_failure_bypasses_fresh_cache(tmp_path):
+    settings = make_settings(tmp_path, "prefer_cache")
+    write_cache(settings, "testsrc__ep__1.2.3.4.json", {"score": 3})
+    live = LiveTracker({"score": 99})
+    resolver = Resolver(settings)
+    resolver.arm_failure("testsrc")
+    env = await resolver.resolve(
+        source="testsrc", endpoint="ep", key="1.2.3.4", fetch_live=live.fetch
+    )
+    assert env.layer == "cache" and live.calls == 0
+    assert any("simulated failure" in w for w in env.warnings)
+    assert any("stale" in w for w in env.warnings)
+
+
 async def test_cache_key_normalized(tmp_path):
     settings = make_settings(tmp_path, "prefer_cache")
     live = LiveTracker({"score": 5})

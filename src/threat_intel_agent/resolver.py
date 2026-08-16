@@ -80,6 +80,10 @@ class Resolver:
         warnings: list[str] = []
         cache_path = self._path(self.cache_dir, source, endpoint, key)
         cached = self._read(cache_path)
+        simulated = source in self._fail_next
+        if simulated:
+            self._fail_next.discard(source)
+            warnings.append(f"simulated failure armed for {source} (HTTP 429)")
 
         def from_cache() -> ToolEnvelope:
             return ToolEnvelope(
@@ -90,31 +94,27 @@ class Resolver:
                 warnings=warnings,
             )
 
-        if cached:
+        if cached and not simulated:
             if self.mode == "prefer_cache" or self.mode == "offline":
                 return from_cache()
             if self.mode == "prefer_live" and self._age_seconds(cached) < ttl_seconds:
                 return from_cache()
 
-        if self.mode != "offline":
-            if source in self._fail_next:
-                self._fail_next.discard(source)
-                warnings.append(f"simulated failure armed for {source} (HTTP 429)")
-            else:
-                try:
-                    await self._buckets.setdefault(source, _Bucket(1.0)).acquire()
-                    data = await fetch_live()
-                    entry = {"fetched_at": utcnow_iso(), "data": data}
-                    self._write_cache(cache_path, entry)
-                    return ToolEnvelope(
-                        source=source,
-                        fetched_at=entry["fetched_at"],
-                        layer="live",
-                        data=data,
-                        warnings=warnings,
-                    )
-                except Exception as e:  # noqa: BLE001
-                    warnings.append(f"live fetch failed: {type(e).__name__}")
+        if self.mode != "offline" and not simulated:
+            try:
+                await self._buckets.setdefault(source, _Bucket(1.0)).acquire()
+                data = await fetch_live()
+                entry = {"fetched_at": utcnow_iso(), "data": data}
+                self._write_cache(cache_path, entry)
+                return ToolEnvelope(
+                    source=source,
+                    fetched_at=entry["fetched_at"],
+                    layer="live",
+                    data=data,
+                    warnings=warnings,
+                )
+            except Exception as e:  # noqa: BLE001
+                warnings.append(f"live fetch failed: {type(e).__name__}")
 
         if cached:
             warnings.append("serving stale cache")

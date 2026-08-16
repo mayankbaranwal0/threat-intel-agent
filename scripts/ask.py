@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from threat_intel_agent.agent import AgentSession  # noqa: E402
+from threat_intel_agent.agent import AgentSession
 
 
 def main() -> None:
