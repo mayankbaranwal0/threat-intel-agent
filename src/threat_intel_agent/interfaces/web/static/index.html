@@ -39,6 +39,12 @@
   .note { color: var(--dim); font-style: italic; margin-top: 8px; font-size: 13px; }
   .flag { color: var(--red); font: 12px monospace; margin-top: 6px; }
   .sys { color: var(--dim); font: 12px monospace; margin: 6px 0; }
+  .working { color: var(--accent); font: 13px monospace; margin: 8px 0; animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+  .hints { margin: 18px 0; }
+  .hints .hint-title { color: var(--dim); font-size: 13px; margin-bottom: 10px; }
+  .chip { display: inline-block; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 6px 12px; margin: 0 8px 8px 0; font-size: 13px; color: var(--text); cursor: pointer; }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
   .trace-row { font: 12px monospace; padding: 3px 0; border-bottom: 1px solid #1a2432; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
   .trace-step { min-width: 78px; color: var(--accent); }
   .trace-step.sanitize { color: var(--amber); } .trace-step.refusal, .trace-step.error { color: var(--red); }
@@ -75,7 +81,14 @@
 <main>
   <section class="pane" id="chat">
     <div class="pane-title">conversation</div>
-    <div class="scroll" id="messages"></div>
+    <div class="scroll" id="messages">
+      <div class="hints" id="hints">
+        <div class="hint-title">Ask about an IOC, a threat actor, a software exposure, or pivot between entities - defanged input welcome. Try one:</div>
+        <span class="chip">Is 45.83.122[.]10 malicious?</span>
+        <span class="chip">What TTPs is APT29 known for?</span>
+        <span class="chip">We run Confluence 7.13 - are we exposed?</span>
+      </div>
+    </div>
     <form id="ask-form">
       <input type="text" id="query" placeholder="Ask about an IOC, actor, exposure, or pivot..." autocomplete="off">
       <button id="send" type="submit">send</button>
@@ -124,10 +137,24 @@ function addAnswer(a) {
   if (a.analyst_note) html += `<div class="note">note: ${esc(a.analyst_note)}</div>`;
   for (const fl of a.injection_flags || []) html += `<div class="flag">! ${esc(fl)}</div>`;
   card.innerHTML = html;
+  clearWorking();
   messages.appendChild(card);
   scrollBottom(messages);
   sendBtn.disabled = false;
   queryInput.focus();
+}
+
+function showWorking() {
+  const div = document.createElement("div");
+  div.className = "working";
+  div.id = "working";
+  div.textContent = "analyzing - routing, calling tools, correlating evidence...";
+  messages.appendChild(div);
+  scrollBottom(messages);
+}
+
+function clearWorking() {
+  document.getElementById("working")?.remove();
 }
 
 function addSys(text, target) {
@@ -142,13 +169,14 @@ const es = new EventSource(`/api/events/${sid}`);
 es.addEventListener("trace", e => addTrace(JSON.parse(e.data)));
 es.addEventListener("answer", e => addAnswer(JSON.parse(e.data)));
 es.addEventListener("error", e => {
-  if (e.data) { addSys("error: " + JSON.parse(e.data).detail); sendBtn.disabled = false; }
+  if (e.data) { clearWorking(); addSys("error: " + JSON.parse(e.data).detail); sendBtn.disabled = false; }
 });
 
 form.addEventListener("submit", async e => {
   e.preventDefault();
   const message = queryInput.value.trim();
   if (!message || sendBtn.disabled) return;
+  document.getElementById("hints")?.remove();
   const div = document.createElement("div");
   div.className = "msg-user";
   div.textContent = "analyst > " + message;
@@ -156,6 +184,7 @@ form.addEventListener("submit", async e => {
   scrollBottom(messages);
   queryInput.value = "";
   sendBtn.disabled = true;
+  showWorking();
   addSys("--- turn ---", trace);
   await fetch("/api/chat", {
     method: "POST", headers: {"Content-Type": "application/json"},
@@ -190,6 +219,13 @@ document.getElementById("memory").addEventListener("click", async () => {
 document.getElementById("new-session").addEventListener("click", async () => {
   await command("new");
   location.reload();
+});
+
+document.getElementById("hints").addEventListener("click", e => {
+  if (e.target.classList.contains("chip")) {
+    queryInput.value = e.target.textContent;
+    form.requestSubmit();
+  }
 });
 
 fetch("/api/config").then(r => r.json()).then(c => {
