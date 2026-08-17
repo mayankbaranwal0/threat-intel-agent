@@ -18,11 +18,6 @@ rewrite -> route), the cached tool call, and the cited answer:
 
 ![CLI multi-turn](assets/cli-multiturn.webp)
 
-The session's entity memory that references resolve against - typed entities, with their
-extraction origin (regex or LLM):
-
-![Session entity memory](assets/memory-detail.webp)
-
 ## What it does
 
 | Query type | Example |
