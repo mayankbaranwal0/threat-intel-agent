@@ -24,6 +24,7 @@ a live trace of every routing decision, tool call, and sanitizer action.
 ## Quickstart (zero threat-intel keys)
 
 Runs fully offline against a curated synthetic dataset - only an LLM key is required.
+Needs Python 3.11+.
 
 ```bash
 git clone https://github.com/mayankbaranwal0/threat-intel-agent && cd threat-intel-agent
@@ -152,7 +153,3 @@ indicators are fictional.
 
 See [DESIGN-NOTE.md](DESIGN-NOTE.md) for the one-page write-up of intent routing and
 injection defense.
-
-## License
-
-MIT
