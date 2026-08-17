@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threat Intel Agent</title>
+<style>
+  :root {
+    --bg: #0e141d; --panel: #151d29; --border: #263447; --text: #d7dfea;
+    --dim: #8a93a5; --accent: #43b5c7; --red: #e05555; --amber: #e0b355;
+    --green: #57c78a; --blue: #5b9bd9;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--text); font: 14px/1.5 "Segoe UI", system-ui, sans-serif; height: 100vh; display: flex; flex-direction: column; }
+  header { display: flex; gap: 14px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--panel); flex-wrap: wrap; }
+  header h1 { font-size: 15px; color: var(--accent); letter-spacing: 1px; margin-right: 8px; }
+  .badge { font: 12px monospace; color: var(--dim); background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; }
+  .badge b { color: var(--text); font-weight: 600; }
+  header .controls { margin-left: auto; display: flex; gap: 8px; }
+  select, button { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  main { flex: 1; display: grid; grid-template-columns: 3fr 2fr; min-height: 0; }
+  .pane { display: flex; flex-direction: column; min-height: 0; }
+  #chat { border-right: 1px solid var(--border); }
+  .pane-title { font: 11px monospace; text-transform: uppercase; letter-spacing: 2px; color: var(--dim); padding: 8px 16px; border-bottom: 1px solid var(--border); }
+  .scroll { flex: 1; overflow-y: auto; padding: 14px 16px; }
+  .msg-user { color: var(--accent); margin: 14px 0 6px; font-weight: 600; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin: 6px 0 14px; }
+  .card.injection { border-color: var(--red); }
+  .card .card-title { font: 12px monospace; letter-spacing: 1px; color: var(--dim); margin-bottom: 8px; }
+  .card.injection .card-title { color: var(--red); font-weight: 700; }
+  .finding { display: flex; gap: 12px; padding: 6px 0; border-top: 1px solid var(--border); }
+  .finding:first-of-type { border-top: 0; }
+  .finding .claim { flex: 3; }
+  .finding .cite { flex: 1.4; text-align: right; font: 11px monospace; color: var(--dim); }
+  .conf { display: inline-block; border-radius: 3px; padding: 0 5px; font-weight: 700; }
+  .conf.high { color: var(--green); } .conf.medium { color: var(--amber); } .conf.low { color: var(--red); }
+  .note { color: var(--dim); font-style: italic; margin-top: 8px; font-size: 13px; }
+  .flag { color: var(--red); font: 12px monospace; margin-top: 6px; }
+  .sys { color: var(--dim); font: 12px monospace; margin: 6px 0; }
+  .trace-row { font: 12px monospace; padding: 3px 0; border-bottom: 1px solid #1a2432; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .trace-step { min-width: 78px; color: var(--accent); }
+  .trace-step.sanitize { color: var(--amber); } .trace-step.refusal, .trace-step.error { color: var(--red); }
+  .trace-detail { color: var(--dim); word-break: break-all; flex: 1; }
+  .layer { border-radius: 3px; padding: 0 6px; font-size: 11px; }
+  .layer.cache { color: var(--blue); border: 1px solid var(--blue); }
+  .layer.live { color: var(--green); border: 1px solid var(--green); }
+  .layer.fixture { color: var(--dim); border: 1px solid var(--dim); }
+  .trace-flag { width: 100%; color: var(--amber); padding-left: 86px; }
+  form { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--panel); }
+  input[type=text] { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 9px 12px; font-size: 14px; }
+  input[type=text]:focus { outline: none; border-color: var(--accent); }
+  #send { padding: 0 18px; font-size: 14px; }
+  #send:disabled { opacity: .4; cursor: wait; }
+</style>
+</head>
+<body>
+<header>
+  <h1>THREAT INTEL AGENT</h1>
+  <span class="badge">model <b id="b-model">...</b></span>
+  <span class="badge">resolver <b id="b-mode">...</b></span>
+  <span class="badge" id="b-sources">sources ...</span>
+  <div class="controls">
+    <select id="mode-select" title="resolver mode">
+      <option value="prefer_cache">prefer_cache</option>
+      <option value="prefer_live">prefer_live</option>
+      <option value="offline">offline</option>
+    </select>
+    <button id="fail-vt" title="simulate a VirusTotal outage on the next call">fail virustotal</button>
+    <button id="memory">memory</button>
+    <button id="new-session">new session</button>
+  </div>
+</header>
+<main>
+  <section class="pane" id="chat">
+    <div class="pane-title">conversation</div>
+    <div class="scroll" id="messages"></div>
+    <form id="ask-form">
+      <input type="text" id="query" placeholder="Ask about an IOC, actor, exposure, or pivot..." autocomplete="off">
+      <button id="send" type="submit">send</button>
+    </form>
+  </section>
+  <section class="pane">
+    <div class="pane-title">agent trace</div>
+    <div class="scroll" id="trace"></div>
+  </section>
+</main>
+<script>
+const sid = crypto.randomUUID();
+const messages = document.getElementById("messages");
+const trace = document.getElementById("trace");
+const form = document.getElementById("ask-form");
+const queryInput = document.getElementById("query");
+const sendBtn = document.getElementById("send");
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function scrollBottom(el) { el.scrollTop = el.scrollHeight; }
+
+function addTrace(ev) {
+  const row = document.createElement("div");
+  row.className = "trace-row";
+  let html = `<span class="trace-step ${esc(ev.step)}">${esc(ev.step)}</span>`;
+  html += `<span class="trace-detail">${esc(ev.detail)}</span>`;
+  if (ev.layer) html += `<span class="layer ${esc(ev.layer)}">${esc(ev.layer)}</span>`;
+  for (const f of ev.flags || []) html += `<span class="trace-flag">! ${esc(f)}</span>`;
+  row.innerHTML = html;
+  trace.appendChild(row);
+  scrollBottom(trace);
+}
+
+function addAnswer(a) {
+  const card = document.createElement("div");
+  const hasFlags = (a.injection_flags || []).length > 0;
+  card.className = "card" + (hasFlags ? " injection" : "");
+  let html = `<div class="card-title">${hasFlags ? "! INJECTION ATTEMPT FLAGGED" : "answer"}</div>`;
+  for (const f of a.findings || []) {
+    html += `<div class="finding"><div class="claim">${esc(f.claim)}</div>` +
+      `<div class="cite">${esc(f.source_tool)} . ${esc(f.source_field)}<br>` +
+      `<span class="conf ${esc(f.confidence)}">[${esc(f.confidence)}]</span></div></div>`;
+  }
+  if (a.analyst_note) html += `<div class="note">note: ${esc(a.analyst_note)}</div>`;
+  for (const fl of a.injection_flags || []) html += `<div class="flag">! ${esc(fl)}</div>`;
+  card.innerHTML = html;
+  messages.appendChild(card);
+  scrollBottom(messages);
+  sendBtn.disabled = false;
+  queryInput.focus();
+}
+
+function addSys(text, target) {
+  const div = document.createElement("div");
+  div.className = "sys";
+  div.textContent = text;
+  (target || messages).appendChild(div);
+  scrollBottom(target || messages);
+}
+
+const es = new EventSource(`/api/events/${sid}`);
+es.addEventListener("trace", e => addTrace(JSON.parse(e.data)));
+es.addEventListener("answer", e => addAnswer(JSON.parse(e.data)));
+es.addEventListener("error", e => {
+  if (e.data) { addSys("error: " + JSON.parse(e.data).detail); sendBtn.disabled = false; }
+});
+
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  const message = queryInput.value.trim();
+  if (!message || sendBtn.disabled) return;
+  const div = document.createElement("div");
+  div.className = "msg-user";
+  div.textContent = "analyst > " + message;
+  messages.appendChild(div);
+  scrollBottom(messages);
+  queryInput.value = "";
+  sendBtn.disabled = true;
+  addSys("--- turn ---", trace);
+  await fetch("/api/chat", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({session_id: sid, message}),
+  });
+});
+
+async function command(cmd, arg) {
+  const res = await fetch("/api/command", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({session_id: sid, command: cmd, arg: arg ?? null}),
+  });
+  return res.json();
+}
+
+document.getElementById("mode-select").addEventListener("change", async e => {
+  const r = await command("mode", e.target.value);
+  addSys(r.ok || r.error, trace);
+  document.getElementById("b-mode").textContent = e.target.value;
+});
+document.getElementById("fail-vt").addEventListener("click", async () => {
+  const r = await command("fail", "virustotal");
+  addSys(r.ok || r.error, trace);
+});
+document.getElementById("memory").addEventListener("click", async () => {
+  const r = await command("memory");
+  const entities = r.entities || [];
+  addSys(entities.length
+    ? "memory: " + entities.map(e => `${e.type}=${e.value}`).join(", ")
+    : "memory: empty", trace);
+});
+document.getElementById("new-session").addEventListener("click", async () => {
+  await command("new");
+  location.reload();
+});
+
+fetch("/api/config").then(r => r.json()).then(c => {
+  document.getElementById("b-model").textContent = c.agent_model;
+  document.getElementById("b-mode").textContent = c.resolver_mode;
+  document.getElementById("mode-select").value = c.resolver_mode;
+  document.getElementById("b-sources").innerHTML = "sources " + Object.entries(c.sources)
+    .map(([name, ok]) => `<b style="color:${ok ? "var(--green)" : "var(--dim)"}">${esc(name)}</b>`)
+    .join(" ");
+});
+</script>
+</body>
+</html>
