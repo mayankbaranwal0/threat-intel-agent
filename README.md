@@ -13,11 +13,15 @@ a live trace of every routing decision, tool call, and sanitizer action.
 
 ![Web UI: chat with cited findings on the left, live agent trace on the right](assets/web-ui.webp)
 
-<details>
-<summary>CLI: multi-turn follow-up with the rewrite visible in the trace</summary>
+CLI: a multi-turn follow-up, with the pronoun resolution visible in the trace (memory ->
+rewrite -> route), the cached tool call, and the cited answer:
 
 ![CLI multi-turn](assets/cli-multiturn.webp)
-</details>
+
+The session's entity memory that references resolve against - typed entities, with their
+extraction origin (regex or LLM):
+
+![Session entity memory](assets/memory-detail.webp)
 
 ## What it does
 
