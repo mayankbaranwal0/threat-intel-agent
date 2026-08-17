@@ -113,7 +113,7 @@ class Resolver:
                     data=data,
                     warnings=warnings,
                 )
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:  # noqa: BLE001 - any live-fetch failure falls through to stale cache or fixture
                 warnings.append(f"live fetch failed: {type(e).__name__}")
 
         if cached:

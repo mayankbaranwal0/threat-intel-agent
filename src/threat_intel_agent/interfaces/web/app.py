@@ -75,7 +75,7 @@ async def chat(request: ChatRequest) -> dict:
         try:
             answer = await session.agent.ask(request.message)
             session.queue.put_nowait(("answer", answer.model_dump()))
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001 - the background task must surface errors to the SSE stream, not die silently
             session.queue.put_nowait(("error", {"detail": f"{type(e).__name__}: {e}"}))
 
     task = asyncio.create_task(run())

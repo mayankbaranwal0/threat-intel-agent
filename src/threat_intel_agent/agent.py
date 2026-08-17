@@ -286,7 +286,7 @@ class AgentSession:
             )
             result = await agent.run(prompt, deps=deps)
             answer = result.output
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001 - a failed run must return an honest error Answer, never crash the session
             self._trace(TraceEvent(step="error", detail=f"agent run failed: {type(e).__name__}"))
             return Answer(
                 findings=[],

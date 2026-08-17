@@ -67,7 +67,7 @@ async def route(
         agent = Agent(model, output_type=RouterOutput, system_prompt=ROUTER_PROMPT)
         result = await agent.run("\n".join(parts))
         return result.output
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001 - any router failure must degrade to the full toolset, never fail the turn
         return RouterOutput(rewritten_query=query, intents=[], entities=[], confidence=0.0)
 
 
