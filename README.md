@@ -36,11 +36,23 @@ Runs fully offline against a curated synthetic dataset - only an LLM key is requ
 Needs Python 3.11+.
 
 ```bash
-git clone https://github.com/mayankbaranwal0/threat-intel-agent && cd threat-intel-agent
-pip install -e .            # or: uv sync
-cp .env.example .env        # add ANTHROPIC_API_KEY (or GEMINI_API_KEY), set RESOLVER_MODE=offline
-tia                         # terminal UI
-tia-web                     # web UI at http://127.0.0.1:8000
+git clone https://github.com/mayankbaranwal0/threat-intel-agent
+cd threat-intel-agent
+
+# install - with uv (recommended):
+uv sync
+# ...or with pip in a virtual environment:
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -e .
+
+# configure - copy the template, then edit it:
+cp .env.example .env             # add ANTHROPIC_API_KEY (or GEMINI_API_KEY)
+                                 # set RESOLVER_MODE=offline for the zero-key dataset
+
+# run:
+uv run tia                       # terminal UI       (plain `tia` in an activated venv)
+uv run tia-web                   # web UI at http://127.0.0.1:8000
 ```
 
 ## Full setup (live threat intel)
