@@ -11,12 +11,14 @@ four layers.
 Two standalone interfaces over one agent core: a rich terminal REPL and a two-pane web UI with
 a live trace of every routing decision, tool call, and sanitizer action.
 
+**Web UI** - chat with cited findings on the left, the live agent trace on the right:
+
 ![Web UI: chat with cited findings on the left, live agent trace on the right](assets/web-ui.webp)
 
-CLI: a multi-turn follow-up, with the pronoun resolution visible in the trace (memory ->
-rewrite -> route), the cached tool call, and the cited answer:
+**Terminal UI** - a multi-turn follow-up, with the pronoun resolution visible in the trace
+(memory -> rewrite -> route), the cached tool call, and the cited answer:
 
-![CLI multi-turn](assets/cli-multiturn.webp)
+![Terminal UI: multi-turn follow-up with trace](assets/cli-multiturn.webp)
 
 ## What it does
 
