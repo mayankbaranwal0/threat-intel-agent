@@ -63,6 +63,21 @@ user text
   every step emits a TraceEvent -> CLI trace lines / web SSE sidebar
 ```
 
+## Code map
+
+| Module | Responsibility |
+|---|---|
+| `schemas.py` | All shared types; `Finding`'s required source fields are the citation contract (L4) |
+| `extractor.py` | Refang + regex IOC extraction and normalization (no LLM); fallback routing path |
+| `router.py` | Single structured call: query rewrite + multi-label intents + scope gate (L1) |
+| `memory.py` | Typed per-session entity stack that coreference resolves against |
+| `resolver.py` | Cache -> live -> fixture layers, per-source rate buckets, one-shot failure simulation |
+| `sanitizer.py` | Injection-pattern quarantine over retrieved intel (L3) |
+| `tools/` | One module per source (VT, AbuseIPDB, OTX, NVD, ATT&CK); responses trimmed at the boundary |
+| `agent.py` | `AgentSession` pipeline: gate -> scoped run -> untrusted-data envelopes (L2) -> trace events |
+| `interfaces/` | CLI REPL (`rich`) and web page (FastAPI + SSE); thin renderers over the same core |
+| `scripts/` | ATT&CK index builder, cache warmer, one-shot query runner, provider smoke test |
+
 ## Security model
 
 - **L1 - router gate**: out-of-scope means offensive *actions* (scan, exploit, exfiltrate,
